@@ -9,7 +9,7 @@ class VoteItem(Item):
     vote = Field()
     name = Field()
     group = Field()
-    
+
     def __reduce__(self):
         return {
             "vote": self["vote"],
@@ -17,20 +17,37 @@ class VoteItem(Item):
             "group": self["group"],
         }
 
+
 class ScrutinyItem(Item):
     title = Field()
     date = Field()
     votes = Field()
-    law_number = Field()
-    law_href = Field()
-    info_href = Field()
-    
+    file_href = Field()
+    law = Field()
+    info = Field()
+    amendments = Field()
+
     def __reduce__(self):
         return {
             "title": self["title"],
             "date": self["date"].isoformat(),
             "votes": self["votes"],
-            "law_number": self["law_number"],
+            "law": self["law"].__reduce__(),
+            "info": self["info"],
+            "amendments": self["amendments"],
+        }
+
+
+class LawItem(Item):
+    title = Field()
+    href = Field()
+    info = Field()
+    amendments = Field()
+    file_href = Field()
+
+    def __reduce__(self):
+        return {
+            "title": self["title"],
+            "href": self["law_href"],
             "law_href": self["law_href"],
-            "more_info_href": self["more_info_href"],
         }
