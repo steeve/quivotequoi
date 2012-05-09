@@ -9,6 +9,8 @@ from lxmlselector import LxmlSelector
 import re
 import json
 from lxml import etree
+import locale
+locale.setlocale(locale.LC_ALL, 'fr_FR')
 
 def latin1_to_ascii(unicrap):
     """This replaces UNICODE Latin-1 characters with
@@ -60,19 +62,27 @@ YAY_NAY_MATCH = re.compile(r"(\w+)\s*:\s+[\(\)\d]+", re.IGNORECASE)
 PEOPLE_LIST_MATCH = re.compile(",\s+", re.IGNORECASE)
 
 def clean_name(name):
-    return re.search(r"(MM\.|M\.|Mme[s]*)?\s*([^\(]+)\s*(\(.*\))?", name).groups()[1].strip()
+    res = re.search(r"(MM\.|M\.|Mme[s]*)?\s*([^\(]+)\s*(\(.*\))?", name).groups()[1].strip()
+    res = re.sub(r"\.$", "", res)
+    return res
 
 
 class AssembleeNationaleSpider(BaseSpider):
     name = 'assemblee_nationale'
     allowed_domains = ['assemblee-nationale.fr']
 
-    def start_requests(self):
-        ## 13e legislature:
-        yield Request(
-            url="http://www.assemblee-nationale.fr/13/documents/index-scrutins.asp",
-            callback=self.parse_scrutin_page,
+    def meta_as_dict(self, lxs):
+        return dict(
+            (meta.attrib("name").extract(), meta.attrib("content").extract())
+            for meta in lxs.xpath("/html/head/meta[@name]")
         )
+
+    def start_requests(self):
+        for leg in [11, 12, 13]:
+            yield Request(
+                url="http://www.assemblee-nationale.fr/%d/documents/index-scrutins.asp" % leg,
+                callback=self.parse_scrutin_page,
+            )
 
     def parse_scrutin_page(self, response):
         lxs = LxmlSelector(response)
@@ -80,18 +90,29 @@ class AssembleeNationaleSpider(BaseSpider):
             title = scrutin.xpath("td[2]//text()")[0].extract()
             title = " - ".join(re.sub(r"\s+", " ", title).strip().split(" - ")[:-1])
             vote_href = urljoin(response.url, scrutin.xpath("td[1]//a/@href")[0].extract())
-            info_href = urljoin(response.url, scrutin.xpath("td[2]//a/@href")[0].extract())
-            vote_href = "http://www.assemblee-nationale.fr/13/scrutins/jo0845.asp"
+            if scrutin.xpath("td[2]//a/@href"):
+                file_href = urljoin(response.url, scrutin.xpath("td[2]//a/@href")[0].extract())
+            else:
+                file_href = None
+            vote_path = urlsplit(vote_href)[2].split("/")
+            leg = vote_path[1]
+            num = vote_path[-1].split(".")[0].replace("jo", "")
+            #vote_href = "http://www.assemblee-nationale.fr/12/scrutins/jo0848.asp"
             yield Request(
                 url=vote_href,
                 callback=self.parse_vote_page,
                 meta={
                     "item": ScrutinyItem(
+                        uuid="%s-%s" % (leg, num),
                         title=title,
-                        file_href=info_href,
+                        file_href=file_href,
+                        leg=leg,
+                        num=num,
+                        url=vote_href,
                     ),
                 }
             )
+            #break
 
     def parse_vote_first_layout(self, lxs, response=None):
         votes = {}
@@ -130,7 +151,8 @@ class AssembleeNationaleSpider(BaseSpider):
                 elif node_class == 'noms' and group_name and vote and not votes[group_name][vote]:
                     txt = "".join(node.text().extract())
                     txt = txt.replace(u"\u00A0", " ")
-                    votes[group_name][vote] = [ clean_name(name2) for name1 in txt.split(", ") for name2 in name1.split(" et ") ]
+                    txt = txt.replace(" et ", ", ")
+                    votes[group_name][vote] = [clean_name(name) for name in re.split(r",\s*", txt)]
         return votes
 
     def parse_vote_second_layout(self, lxs):
@@ -158,37 +180,49 @@ class AssembleeNationaleSpider(BaseSpider):
                     vote = "abs"
                 votes[group_name][vote] = None
             elif group_name and vote and not votes[group_name][vote]:
-                votes[group_name][vote] = [ clean_name(name2) for name1 in txt.split(", ") for name2 in name1.split(" et ") ]
+                txt = "".join(node.text().extract())
+                txt = txt.replace(u"\u00A0", " ")
+                txt = txt.replace(" et ", ", ")
+                votes[group_name][vote] = [clean_name(name) for name in re.split(r",\s*", txt)]
         return votes
 
     def parse_vote_page(self, response):
         lxs = LxmlSelector(response)
         item = response.meta["item"]
+        etree.strip_tags(lxs.xmlNode, "b", "font", "i", "sup")
+        meta = self.meta_as_dict(lxs)
 
-        date_txt = lxs.xpath("//text()").re("[DUdu\s:]+(\d+/\d+/\d+)")
-        date = datetime.strptime(date_txt[0], "%d/%m/%Y")
+        date_txt = lxs.xpath("//text()").re(r"[DUdu\s:]+(\d+/\d+/\d+)")
+        if date_txt:
+            item["date"] = datetime.strptime(date_txt[0], "%d/%m/%Y").isoformat()
+        else:
+            page_text = "".join(lxs.xpath("//text()").extract())
+            page_text = page_text.replace(u"\u00A0", " ")
+            page_text = page_text.encode("utf-8")
+            date_txt = re.search(r"du[:\s]+(\d+)[er]*\s+(.+?)\s+(\d+)", page_text)
+            if date_txt:
+                date_txt = " ".join(date_txt.groups())
+                item["date"] = datetime.strptime(date_txt, "%d %B %Y").isoformat()
+            else:
+                raise
 
-        etree.strip_tags(lxs.xmlNode, "b", "font", "i")
         if lxs.css("#analyse p.nomgroupe"):
-            votes = self.parse_vote_first_layout(lxs, response)
+            item["votes"] = self.parse_vote_first_layout(lxs, response)
         else: # 2nd layout!
-            votes = self.parse_vote_second_layout(lxs)
-        item["date"] = date.isoformat(),
-        item["votes"] = votes
-        yield Request(
-            url=item["file_href"],
-            callback=self.parse_info_page,
-            meta={
-                "item": item,
-            }
-        )
+            item["votes"] = self.parse_vote_second_layout(lxs)
 
+        if item.get("file_href"):
+            yield Request(
+                url=item["file_href"],
+                callback=self.parse_info_page,
+                meta={
+                    "item": item,
+                }
+            )
+        else:
+            yield item
 
     def parse_info_page(self, response):
-        lxs = LxmlSelector(response)
-        item = response.meta["item"]
-        etree.strip_tags(lxs.xmlNode, "b", "font", "i")
-
         def get_text(node, regexp=None, invert=False):
             etree.strip_tags(node.xmlNode, "a")
             txt = ""
@@ -207,15 +241,32 @@ class AssembleeNationaleSpider(BaseSpider):
             txt = re.sub("(\s\.+\s)+", ".", txt)
             txt = re.sub("[\s]+", " ", txt)
             txt = re.sub("[\.]+", ".", txt)
+            txt = re.sub("^. ", "", txt)
+            txt  = txt.strip()
             return txt
 
-        info_node = lxs.xpath("//a[@name = 'PDT']/ancestor::td[1]")[0]
-        item["info"] = get_text(info_node, re.compile(r"(article|principales dispositions du texte)", re.IGNORECASE), invert=True)
-        amendments_node = lxs.xpath("//a[@name = 'PAC']/ancestor::td[1]")[0]
-        item["amendments"] = get_text(amendments_node, re.compile(r"(article|principaux amendements|travaux de|voir le compte)", re.IGNORECASE), invert=True)
+        lxs = LxmlSelector(response)
+        item = response.meta["item"]
+        meta = self.meta_as_dict(lxs)
+        etree.strip_tags(lxs.xmlNode, "b", "font", "i")
+
+        info_node = lxs.xpath("//a[@name = 'PDT']/ancestor::td[1]")
+        if info_node:
+            item["info"] = get_text(info_node[0], re.compile(r"(article|principales dispositions du texte)", re.IGNORECASE), invert=True).strip()
+        amendments_node = lxs.xpath("//a[@name = 'PAC']/ancestor::td[1]")
+        if amendments_node:
+            item["amendments"] = get_text(amendments_node[0], re.compile(r"(article|principaux amendements|travaux de|voir le compte)", re.IGNORECASE), invert=True)
+        summary_node = lxs.xpath("//a[@name = 'ECRCM']/ancestor::td[1]")
+        if summary_node:
+            item["summary"] = get_text(summary_node[0])
+
+        file_href = meta.get("URL_DOSSIER") or None
+        if file_href:
+            file_href = urljoin(response.url, file_href)
         item["law"] = LawItem(
-            title=lxs.xpath("//meta[@name='LOI_PROMULGUEE']/@content")[0].extract(),
-            href=lxs.xpath("//meta[@name='LIEN_LOI_PROMULGUEE']/@content")[0].extract(),
-            file_href=urljoin(response.url, lxs.xpath("//meta[@name='URL_DOSSIER']/@content")[0].extract()),
+            title=meta.get("LOI_PROMULGUEE", ""),
+            href=meta.get("LIEN_LOI_PROMULGUEE", ""),
+            file_href=file_href,
         )
+
         yield item

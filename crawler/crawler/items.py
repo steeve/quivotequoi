@@ -5,27 +5,28 @@
 
 from scrapy.item import Item, Field
 
-class VoteItem(Item):
-    vote = Field()
+class DeputyItem(Item):
+    uuid = Field()
     name = Field()
-    group = Field()
-
-    def __reduce__(self):
-        return {
-            "vote": self["vote"],
-            "name": self["name"],
-            "group": self["group"],
-        }
+    image = Field()
+    url = Field()
+    jurisdiction = Field()
 
 
 class ScrutinyItem(Item):
+    uuid = Field()
+    leg = Field()
+    num = Field()
     title = Field()
     date = Field()
     votes = Field()
+    url = Field()
     file_href = Field()
     law = Field()
     info = Field()
     amendments = Field()
+    summary = Field()
+    keywords = Field()
 
     def __reduce__(self):
         return {
@@ -41,8 +42,6 @@ class ScrutinyItem(Item):
 class LawItem(Item):
     title = Field()
     href = Field()
-    info = Field()
-    amendments = Field()
     file_href = Field()
 
     def __reduce__(self):

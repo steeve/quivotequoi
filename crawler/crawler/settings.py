@@ -14,3 +14,8 @@ NEWSPIDER_MODULE = 'crawler.spiders'
 DEFAULT_ITEM_CLASS = 'crawler.items.ScrutinyItem'
 USER_AGENT = '%s/%s' % (BOT_NAME, BOT_VERSION)
 
+ITEM_PIPELINES = [
+    'crawler.pipelines.AlchemyPipeline',
+    'crawler.pipelines.DeputyUuidPipeline',
+    'crawler.pipelines.ElasticSearchPipeline',
+]
