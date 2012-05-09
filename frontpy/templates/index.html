@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Le Vote</title>
+        <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <a class="brand" href="#">
+                        LeVote.org
+                    </a>
+                    <div class="container">
+                        <form class="navbar-search pull-left">
+                            <input id="search" type="text" class="span6" placeholder="Tapez le nom d'un depute...">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div id="results"></div>
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </body>
+</html>
