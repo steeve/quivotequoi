@@ -8,7 +8,7 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/deputy_search")
+@app.route("/deputes/search")
 def search_deputy():
     query = {
         "size": 1000,
@@ -27,7 +27,7 @@ def search_deputy():
     )
     return json.dumps([hit["_source"] for hit in response["hits"]["hits"]])
 
-@app.route("/deputy/<uuid>")
+@app.route("/deputes/<uuid>")
 def show_deputy(uuid):
     deputy = json.loads(
         requests.get("http://localhost:9200/levote/deputies/%s" % uuid).content

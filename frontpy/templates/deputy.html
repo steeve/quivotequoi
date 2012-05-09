@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% block head %}
+    <title>{{ deputy.name }} - QuiVoteQuoi</title>
+    <meta property="og:title" content="QuiVoteQuoi - {{ deputy.name }}" />
+    <meta property="og:image" content="{{ deputy.image }}" />
+{% endblock %}
 {% block content %}
 <div class="row">
     <div class="span2">
@@ -19,7 +24,7 @@
     <ul class="nav nav-tabs">
         {% for vote, results in queries.items() %}
             <li class="{% if loop.first %}active{% endif %}">
-                <a href="#votes_{{ vote}}" data-toggle="tab">{{ vote }} <span class="badge">{{ results.total }}</span></a></li>
+                <a href="#votes_{{ vote}}" data-toggle="tab">{{ {"yea": "Pour", "nay":"Contre", "abs": "Abstenu"}[vote] }} <span class="badge {{ {"yea": "badge-success", "nay": "badge-important", "abs": "badge-inverse"}[vote] }}">{{ results.total }}</span></a></li>
             </li>
         {% endfor %}
     </ul>
@@ -30,7 +35,7 @@
                     <tbody>
                         {% for result in results.hits %}
                         <tr>
-                            <td>
+                            <td name="{{ result._source.uuid }}">
                                 {% if result._source.votes.yea|length >= result._source.votes.nay|length %}
                                     <span class="label label-success">Adopté</span>
                                 {% else %}
@@ -39,7 +44,7 @@
                             </td>
                             <td>
                                 {% if result._source.url %}
-                                    <a href="{{ result._source.url }}">{{ result._source.title }}</a>
+                                    <a href="{{ result._source.url }}">{{ result._source.title|capitalize }}</a>
                                 {% else %}
                                     {{ result._source.title }}
                                 {% endif %}
@@ -51,10 +56,10 @@
                                         <a href="{{ result._source.file_href }}">Le dossier</a>
                                     </div>
                                 {% endif %}
-                                {% if result._source.law_href and result._source.law_href.0 %}
+                                {% if result._source.law_href %}
                                     <div class="span2">
                                         <i class="icon-book"></i>
-                                        <a href="{{ result._source.law_href.0 }}">La loi</a>
+                                        <a href="{{ result._source.law_href }}">La loi</a>
                                     </div>
                                 {% endif %}
                             </td>
