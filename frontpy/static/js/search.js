@@ -1,7 +1,13 @@
 $(document).ready(function (){
-  $("#search").bind("propertychange input paste", function() {
-    $.get("/deputy_search", {"q": $(this).val()}, function(data) {
-      $("#results").html(data);
-    });
+  $("#search").typeahead({
+    source: function(typeahead, query) {
+      $.get("/deputy_search", {"q": query}, function(data) {
+        typeahead.process(data);
+      }, "json");
+    },
+    property: "name",
+    onselect: function (obj) {
+      window.location = "/deputy/" + obj["uuid"];
+    }
   });
 });

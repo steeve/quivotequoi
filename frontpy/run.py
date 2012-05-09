@@ -25,7 +25,7 @@ def search_deputy():
             data=json.dumps(query)
         ).content
     )
-    return render_template("deputy_table.html", hits=response["hits"])
+    return json.dumps([hit["_source"] for hit in response["hits"]["hits"]])
 
 @app.route("/deputy/<uuid>")
 def show_deputy(uuid):
@@ -36,7 +36,6 @@ def show_deputy(uuid):
     for vote_type in ["yea", "nay", "abs"]:
         query = {
             "sort": [{"date": {"order": "desc"}}],
-            "fields": ["title", "date", "url", "law_href", "file_href", "law_href"],
             "size": 1000,
             "query": {
                 "term": { ("votes.%s" % vote_type): uuid }
