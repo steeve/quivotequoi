@@ -5,70 +5,79 @@
     <meta property="og:image" content="{{ deputy.image }}" />
 {% endblock %}
 {% block content %}
-<div class="row">
-    <div class="span2">
-        <ul class="thumbnails">
-            <li class="">
-                <a href="#" class="thumbnail">
-                    <img style="height: 128px;" src="{{ deputy.image }}"</img>
-                </a>
-            </li>
+<section id="depute">
+    <div class="page-header" style="padding-bottom: 2px;">
+        <h1 style="text-align: right;">{{ deputy.name }}</h1>
+    </div>
+    <div class="row">
+        <div class="span2">
+            <ul class="thumbnails">
+                <li class="">
+                    <a href="#" class="thumbnail">
+                        <img style="height: 128px;" src="{{ deputy.image }}"</img>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="offset1"><h3>{{ deputy.jurisdiction }}</h3></div>
+        <div class="offset1"><i class="icon-info-sign"></i> <a href="{{ deputy.url }}">Voir sur le site de l'Assemblee Nationale</a></div>
+        <div class="offset1"><i class="icon-info-sign"></i> <a href="http://www.nosdeputes.fr/{{ deputy.name|lower|replace(" ", "-") }}">Voir sur NosDeputes.fr</a></div>
+    </div>
+</section>
+<section id="scrutins">
+    <div class="tabbable">
+        <ul class="nav nav-tabs offset">
+            {% for vote, results in queries.items() %}
+                <li class="{% if loop.first %}active{% endif %}">
+                    <a href="#votes_{{ vote}}" data-toggle="tab">{{ {"yea": "Pour", "nay":"Contre", "abs": "Abstenu"}[vote] }} <span class="badge {{ {"yea": "badge-success", "nay": "badge-important", "abs": "badge-inverse"}[vote] }}">{{ results.total }}</span></a></li>
+                </li>
+            {% endfor %}
+            <li class="span2 pull-right"><h1>Scrutins</h1></li>
         </ul>
+        <div class="tab-content">
+            {% for vote, results in queries.items() %}
+                <div class="tab-pane {% if loop.first %}active{% endif %}" id="votes_{{ vote }}">
+                    <table class="table table-striped">
+                        <tbody>
+                            {% for result in results.hits %}
+                            <tr>
+                                <td name="{{ result._source.uuid }}">
+                                    {% if result._source.votes.yea|length >= result._source.votes.nay|length %}
+                                        <span class="label label-success">Adopté</span>
+                                    {% else %}
+                                        <span class="label label-important">Rejeté</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if result._source.url %}
+                                        <a href="{{ result._source.url }}">
+                                            {{ result._source.title|capitalize }}
+                                        </a>
+                                    {% else %}
+                                        {{ result._source.title }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if result._source.file_href %}
+                                        <div class="span2">
+                                            <i class="icon-search"></i>
+                                            <a href="{{ result._source.file_href }}">Le dossier</a>
+                                        </div>
+                                    {% endif %}
+                                    {% if result._source.law_href %}
+                                        <div class="span2">
+                                            <i class="icon-book"></i>
+                                            <a href="{{ result._source.law_href }}">La loi</a>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    <div class="offset2"><h1>{{ deputy.name }}</h1></div>
-    <div class="offset2"><h3>{{ deputy.jurisdiction }}</h3></div>
-    <div class="offset2"><i class="icon-info-sign"></i> <a href="{{ deputy.url }}">Voir sur le site de l'Assemblee Nationale</a></div>
-    <div class="offset2"><i class="icon-info-sign"></i> <a href="http://www.nosdeputes.fr/{{ deputy.name|lower|replace(" ", "-") }}">Voir sur NosDeputes.fr</a></div>
-</div>
-<div class="tabbable">
-    <ul class="nav nav-tabs">
-        {% for vote, results in queries.items() %}
-            <li class="{% if loop.first %}active{% endif %}">
-                <a href="#votes_{{ vote}}" data-toggle="tab">{{ {"yea": "Pour", "nay":"Contre", "abs": "Abstenu"}[vote] }} <span class="badge {{ {"yea": "badge-success", "nay": "badge-important", "abs": "badge-inverse"}[vote] }}">{{ results.total }}</span></a></li>
-            </li>
-        {% endfor %}
-    </ul>
-    <div class="tab-content">
-        {% for vote, results in queries.items() %}
-            <div class="tab-pane {% if loop.first %}active{% endif %}" id="votes_{{ vote }}">
-                <table class="table table-striped">
-                    <tbody>
-                        {% for result in results.hits %}
-                        <tr>
-                            <td name="{{ result._source.uuid }}">
-                                {% if result._source.votes.yea|length >= result._source.votes.nay|length %}
-                                    <span class="label label-success">Adopté</span>
-                                {% else %}
-                                    <span class="label label-important">Rejeté</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if result._source.url %}
-                                    <a href="{{ result._source.url }}">{{ result._source.title|capitalize }}</a>
-                                {% else %}
-                                    {{ result._source.title }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if result._source.file_href %}
-                                    <div class="span2">
-                                        <i class="icon-search"></i>
-                                        <a href="{{ result._source.file_href }}">Le dossier</a>
-                                    </div>
-                                {% endif %}
-                                {% if result._source.law_href %}
-                                    <div class="span2">
-                                        <i class="icon-book"></i>
-                                        <a href="{{ result._source.law_href }}">La loi</a>
-                                    </div>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endfor %}
-    </div>
-</div>
+</section>
 {% endblock %}

@@ -5,9 +5,9 @@ $(document).ready(function (){
         typeahead.process(data);
       }, "json");
     },
-    property: "name",
     onselect: function (obj) {
       window.location = "/deputes/" + obj["uuid"];
-    }
+    },
+    property: "name"
   });
 });
