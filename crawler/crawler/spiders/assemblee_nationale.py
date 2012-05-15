@@ -78,7 +78,7 @@ class AssembleeNationaleSpider(BaseSpider):
         )
 
     def start_requests(self):
-        for leg in [11, 12, 13]:
+        for leg in [13]:
             yield Request(
                 url="http://www.assemblee-nationale.fr/%d/documents/index-scrutins.asp" % leg,
                 callback=self.parse_scrutin_page,
@@ -223,6 +223,16 @@ class AssembleeNationaleSpider(BaseSpider):
             yield item
 
     def parse_info_page(self, response):
+        def get_text_formatted(node):
+            from lxml.html import fromstring
+            etree.strip_tags(node.xmlNode, "a")
+            txt = node.extract()
+            txt = txt.replace("<br/>", "\n")
+            txt = txt.replace(u"\u00A0", " ")
+            txt = fromstring(txt).text_content()
+            txt = re.sub(r"\n[ \t]+", "\n", txt)
+            return txt.strip()
+
         def get_text(node, regexp=None, invert=False):
             etree.strip_tags(node.xmlNode, "a")
             txt = ""
@@ -252,13 +262,13 @@ class AssembleeNationaleSpider(BaseSpider):
 
         info_node = lxs.xpath("//a[@name = 'PDT']/ancestor::td[1]")
         if info_node:
-            item["info"] = get_text(info_node[0], re.compile(r"(article|principales dispositions du texte)", re.IGNORECASE), invert=True).strip()
+            item["info"] = get_text_formatted(info_node[0])
         amendments_node = lxs.xpath("//a[@name = 'PAC']/ancestor::td[1]")
         if amendments_node:
-            item["amendments"] = get_text(amendments_node[0], re.compile(r"(article|principaux amendements|travaux de|voir le compte)", re.IGNORECASE), invert=True)
+            item["amendments"] = get_text_formatted(amendments_node[0])
         summary_node = lxs.xpath("//a[@name = 'ECRCM']/ancestor::td[1]")
         if summary_node:
-            item["summary"] = get_text(summary_node[0])
+            item["summary"] = get_text_formatted(summary_node[0])
 
         file_href = meta.get("URL_DOSSIER") or None
         if file_href:

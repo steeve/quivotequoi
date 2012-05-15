@@ -136,4 +136,5 @@ class AssembleeNationaleDeputesSpider(BaseSpider):
             image=urljoin(response.url, lxs.css(".deputy-profile-picture")[0].attrib("src").extract()),
             url=response.url,
             jurisdiction=lxs.css(".deputy-healine-sub-title").text().extract()[0],
+            party=lxs.css(".political-party").text().extract()[0],
         )

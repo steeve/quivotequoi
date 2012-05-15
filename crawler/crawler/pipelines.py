@@ -26,36 +26,37 @@ class AlchemyPipeline(object):
         return item
 
 class DeputyUuidPipeline(object):
+    def name_to_object(self, name):
+        if not name:
+            return
+        query = {
+            "size": 1,
+            "query": {
+                "query_string": {
+                    "default_field": "name",
+                    "default_operator": "AND",
+                    "query": name,
+                },
+            },
+        }
+        response = json.loads(requests.post("http://localhost:9200/levote/deputies/_search",
+            data=json.dumps(query)).content)
+        if response["hits"]["total"] > 0:
+            return response["hits"]["hits"][0]["_source"]["uuid"]
+
+
     def process_item(self, item, spider):
         if not isinstance(item, ScrutinyItem):
             return item
         new_votes = {}
-        for group, votes in item["votes"].items():
-            new_votes[group] = {}
-            for vote_type, voters in votes.items():
-                new_votes[group][vote_type] = []
-                if voters:
-                    for voter in voters:
-                        if not voter:
-                            new_votes[group][vote_type].append(None)
-                            continue
-                        query = {
-                            "fields": [],
-                            "size": 1,
-                            "query": {
-                                "query_string": {
-                                    "fields": ["name"],
-                                    "query": voter,
-                                },
-                            },
-                        }
-                        response = json.loads(requests.post("http://localhost:9200/levote/deputies/_search",
-                            data=json.dumps(query)).content)
-                        if response["hits"]["total"] > 0:
-                            uuid = response["hits"]["hits"][0]["_id"]
-                        else:
-                            uuid = None
-                        new_votes[group][vote_type].append(uuid)
+        for group_name, group_votes in item["votes"].items():
+            for vote_type, voters in group_votes.items():
+                if not voters:
+                    continue
+                new_votes[group_name] = new_votes.get(group_name) or {}
+                new_votes[group_name].update({
+                    vote_type: map(self.name_to_object, voters)
+                })
         item["votes"] = new_votes
         return item
 
@@ -70,11 +71,12 @@ class ElasticSearchPipeline(object):
         es_item = {}
         for k in ["uuid", "title", "date", "url", "leg", "num", "keywords", "file_href", "info", "amendments"]:
             es_item[k] = item.get(k)
-        es_item["votes"] = {}
-        for vote_type in ["yea", "nay", "abs"]:
-            es_item["votes"][vote_type] = []
-            for votes in item["votes"].values():
-                es_item["votes"][vote_type].extend(votes.get(vote_type, []))
+        es_item["votes"] = []
+        for group_name, group_votes in item["votes"].items():
+            es_item["votes"].append({
+                "name": group_name,
+                "votes": group_votes
+            })
         if item.get("law"):
             es_item["law_href"] = item["law"]["href"]
             es_item["file_href"] = item["law"]["file_href"]

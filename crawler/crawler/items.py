@@ -11,6 +11,7 @@ class DeputyItem(Item):
     image = Field()
     url = Field()
     jurisdiction = Field()
+    party = Field()
 
 
 class ScrutinyItem(Item):

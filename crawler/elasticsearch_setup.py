@@ -132,14 +132,6 @@ MAPPINGS = {
             "date": {"type": "date"},
             "leg": {"type": "string", "index": "not_analyzed"},
             "num": {"type": "string", "index": "not_analyzed"},
-            "votes": {
-                "type": "object",
-                "properties": {
-                    "yea": {"type": "string", "index": "not_analyzed"},
-                    "nay": {"type": "string", "index": "not_analyzed"},
-                    "abs": {"type": "string", "index": "not_analyzed"},
-                }
-            },
             "url": {"type": "string", "index": "not_analyzed"},
             "summary": {"type": "string", "index": "analyzed", "analyzer": "french_analyzer"},
             "info": {"type": "string", "index": "analyzed", "analyzer": "french_analyzer"},
@@ -147,6 +139,22 @@ MAPPINGS = {
             "keywords": {"type": "string", "index": "analyzed", "analyzer": "trend_analyzer"},
             "law_href": {"type": "string", "index": "not_analyzed"},
             "file_href": {"type": "string", "index": "not_analyzed"},
+            "votes": {
+                "type": "object",
+                "dynamic": False,
+                "properties": {
+                    "name": {"type": "string", "index": "not_analyzed"},
+                    "votes": {
+                        "type": "object",
+                        "dynamic": False,
+                        "properties": {
+                            "yea": {"type": "string", "index": "not_analyzed"},
+                            "nay": {"type": "string", "index": "not_analyzed"},
+                            "abs": {"type": "string", "index": "not_analyzed"},
+                        },
+                    },
+                }
+            },
         },
     },
     "deputies": {
@@ -156,7 +164,8 @@ MAPPINGS = {
             "name": {"type": "string", "index": "analyzed", "analyzer": "french_analyzer"},
             "image": {"type": "string", "index": "not_analyzed"},
             "url": {"type": "string", "index": "not_analyzed"},
-            "jurisdiction": {"type": "string", "index": "analyzed", "analyzer": "french_analyzer"},
+            "jurisdiction": {"type": "string", "index": "not_analyzed"},
+            "party": {"type": "string", "index": "not_analyzed"},
         },
     },
 }
