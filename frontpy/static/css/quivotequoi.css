@@ -1,0 +1,5 @@
+.info {
+    word-break: initial;
+    max-height: 500px;
+    overflow: auto;
+}

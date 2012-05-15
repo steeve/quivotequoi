@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block head %}
     <title>{{ deputy.name }} - QuiVoteQuoi</title>
+    <script src="{{ url_for('static', filename='js/bootstrap-collapse.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".collapse").collapse();
+        });
+    </script>
     <meta property="og:title" content="QuiVoteQuoi - {{ deputy.name }}" />
     <meta property="og:image" content="{{ deputy.image }}" />
 {% endblock %}
@@ -20,6 +26,7 @@
             </ul>
         </div>
         <div class="offset1"><h3>{{ deputy.jurisdiction }}</h3></div>
+        <div class="offset1"><h3>{{ deputy.party }}</h3></div>
         <div class="offset1"><i class="icon-info-sign"></i> <a href="{{ deputy.url }}">Voir sur le site de l'Assemblee Nationale</a></div>
         <div class="offset1"><i class="icon-info-sign"></i> <a href="http://www.nosdeputes.fr/{{ deputy.name|lower|replace(" ", "-") }}">Voir sur NosDeputes.fr</a></div>
     </div>
@@ -40,38 +47,7 @@
                     <table class="table table-striped">
                         <tbody>
                             {% for result in results.hits %}
-                            <tr>
-                                <td name="{{ result._source.uuid }}">
-                                    {% if result._source.votes.yea|length >= result._source.votes.nay|length %}
-                                        <span class="label label-success">Adopté</span>
-                                    {% else %}
-                                        <span class="label label-important">Rejeté</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if result._source.url %}
-                                        <a href="{{ result._source.url }}">
-                                            {{ result._source.title|capitalize }}
-                                        </a>
-                                    {% else %}
-                                        {{ result._source.title }}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if result._source.file_href %}
-                                        <div class="span2">
-                                            <i class="icon-search"></i>
-                                            <a href="{{ result._source.file_href }}">Le dossier</a>
-                                        </div>
-                                    {% endif %}
-                                    {% if result._source.law_href %}
-                                        <div class="span2">
-                                            <i class="icon-book"></i>
-                                            <a href="{{ result._source.law_href }}">La loi</a>
-                                        </div>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                                {% include "scrutiny.html" %}
                             {% endfor %}
                         </tbody>
                     </table>

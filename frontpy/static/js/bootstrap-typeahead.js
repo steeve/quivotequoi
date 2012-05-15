@@ -121,32 +121,35 @@
     }
 
   , matcher: function (item) {
-      return ~item.toLowerCase().indexOf(this.query.toLowerCase())
+      return true; // use ElasticSearch to determine that.
+//      return ~item.toLowerCase().indexOf(this.query.toLowerCase())
     }
 
   , sorter: function (items) {
-      var beginswith = []
-        , caseSensitive = []
-        , caseInsensitive = []
-        , item
-        , sortby
-
-      while (item = items.shift()) {
-        if (this.strings) sortby = item
-        else sortby = item[this.options.property]
-
-        if (!sortby.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item)
-        else if (~sortby.indexOf(this.query)) caseSensitive.push(item)
-        else caseInsensitive.push(item)
-      }
-
-      return beginswith.concat(caseSensitive, caseInsensitive)
+      return items; // use ElasticSearch fot that.
+//      var beginswith = []
+//        , caseSensitive = []
+//        , caseInsensitive = []
+//        , item
+//        , sortby
+//
+//      while (item = items.shift()) {
+//        if (this.strings) sortby = item
+//        else sortby = item[this.options.property]
+//
+//        if (!sortby.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item)
+//        else if (~sortby.indexOf(this.query)) caseSensitive.push(item)
+//        else caseInsensitive.push(item)
+//      }
+//
+//      return beginswith.concat(caseSensitive, caseInsensitive)
     }
 
   , highlighter: function (item) {
-      return item.replace(new RegExp('(' + this.query + ')', 'ig'), function ($1, match) {
-        return '<strong>' + match + '</strong>'
-      })
+      return item[this.options.property + "_highlight"]; // use ElasticSearch highlighting.
+//      return item.replace(new RegExp('(' + this.query + ')', 'ig'), function ($1, match) {
+//        return '<strong>' + match + '</strong>'
+//      })
     }
 
   , render: function (items) {
@@ -154,8 +157,8 @@
 
       items = $(items).map(function (i, item) {
         i = $(that.options.item).attr('data-value', JSON.stringify(item))
-        if (!that.strings)
-            item = item[that.options.property]
+//        if (!that.strings)
+//            item = item[that.options.property]
         i.find('a').html(that.highlighter(item))
         return i[0]
       })

@@ -4,12 +4,38 @@
 {% endblock %}
 {% block content %}
 <div class="hero-unit">
-    <h1>Qui vote quoi?</h1>
-    <p>Votez sur des actes, pas sur des promesses.</p>
+    <div class="row">
+        <div class="span6">
+            <h1>Qui vote quoi ?</h1>
+            <p>Le vote de chaque depute, scrutin par scrutin.</p>
+        </div>
+        <div class="offset8">
+            <ul class="thumbnails">
+                <li>
+                    <a href="/deputes/{{ deputy.uuid }}" class="thumbnail">
+                        <img src="{{ deputy.image }}"</img>
+                        <h4 style="text-align: center;">{{ deputy.name }}</h4>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
 <div class="row">
     <div class="span4">
-        <h2>Le vote</h2>
+        <h2>Pourquoi ?</h2>
+        <p>
+            Parce que le vote est la vraie parole du depute.
+        </p>
+    </div>
+    <div class="span4">
+        <h2>Comment ?</h2>
+        <p>
+
+        </p>
+    </div>
+    <div class="span4">
+        <h2>Par exemple ?</h2>
         <p>QuiVoteQuoi classe les deputes sur leurs votes.</p>
     </div>
 </div>
