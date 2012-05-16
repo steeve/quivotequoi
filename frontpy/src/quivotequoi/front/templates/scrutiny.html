@@ -1,0 +1,82 @@
+<tr>
+    <td>
+        {{ result._source.date }}
+    </td>
+    <td>
+        <a name="{{ result._source.uuid }}" href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#more_{{ result._source.uuid }}">{{ result._source.title|capitalize }}</a>
+        <div id="more_{{ result._source.uuid }}" class="collapse">
+            <hr/>
+            <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#vote_{{ result._source.uuid }}">Detail du vote</a></h4>
+            <div id="vote_{{ result._source.uuid }}" class="collapse in">
+                <table  class="table table-striped table-condensed">
+                    <thead>
+                        <th>Groupe</th>
+                        <th>Pour</th>
+                        <th>Contre</th>
+                        <th>Abstenu</th>
+                        <th>Avis</th>
+                    </thead>
+                    <tbody>
+                        {% for vote in result._source.votes %}
+                        <tr>
+                            <td>{{ vote.name|capitalize }}</td>
+                            <td><span class="badge badge-success">{{ vote.votes.yea|length }}</span></td>
+                            <td><span class="badge badge-important">{{ vote.votes.nay|length }}</span></td>
+                            <td><span class="badge badge-inverse">{{ vote.votes.abs|length }}</span></td>
+                            <td>
+                                {% if vote.votes.yea|length > vote.votes.nay|length %}
+                                    <span class="label label-success">Pour</span>
+                                {% else %}
+                                    <span class="label label-important">Contre</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if result._source.info %}
+                <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#info_{{ result._source.uuid }}">Principales dispositions du texte</a></h4>
+                <div id="info_{{ result._source.uuid }}" class="collapse">
+                    <pre class="info">{{ result._source.info }}</pre>
+                </div>
+            {% endif %}
+
+            {% if result._source.amendments %}
+                <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#amendments_{{ result._source.uuid }}">Principaux amendements</a></h4>
+                <div id="amendments_{{ result._source.uuid }}" class="collapse">
+                    <pre class="info">{{ result._source.amendments }}</pre>
+                </div>
+            {% endif %}
+
+            {% if result._source.summary %}
+                <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#summary_{{ result._source.uuid }}">Compte rendu</a></h4>
+                <div id="summary_{{ result._source.uuid }}" class="collapse">
+                    <pre class="info">{{ result._source.summary }}</pre>
+                </div>
+            {% endif %}
+
+            <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#links_{{ result._source.uuid }}">Liens utiles</a></h4>
+            <div id="links_{{ result._source.uuid }}" class="collapse in">
+                <ul>
+                    <li><i class="icon-search"></i> <a href="{{ result._source.url }}" target="_blank">Voir le scrutin au Journal Officiel</a></li>
+                    {% if result._source.file_href %}
+                        <li><i class="icon-search"></i> <a href="{{ result._source.file_href }}" target="_blank">Voir le dossier</a></li>
+                    {% endif %}
+                    {% if result._source.law_href %}
+                        <li><i class="icon-book"></i> <a href="{{ result._source.law_href }}" target="_blank">Voir sur Légifrance</a></li>
+                    {% endif %}
+                </ul>
+
+            </div>
+        </div>
+    </td>
+    <td name="{{ result._source.uuid }}">
+        {% if result._source.yea >= result._source.nay %}
+            <span class="label label-success">Adopté</span>
+        {% else %}
+            <span class="label label-important">Rejeté</span>
+        {% endif %}
+    </td>
+</tr>

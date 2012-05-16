@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block head %}
+    <title>QuiVoteQuoi</title>
+{% endblock %}
+{% block content %}
+<div class="hero-unit">
+    <div class="row">
+        <div class="span6">
+            <h1>Qui vote quoi ?</h1>
+            <p>Le vote de chaque deputé, scrutin par scrutin.</p>
+        </div>
+        <div class="pull-right">
+            <ul class="thumbnails">
+                <li>
+                    <a href="/deputes/{{ deputy.uuid }}" class="thumbnail">
+                        <img src="{{ deputy.image }}"</img>
+                        <h4 style="text-align: center;">{{ deputy.name }}</h4>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
