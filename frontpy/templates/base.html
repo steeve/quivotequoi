@@ -11,7 +11,7 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap-typeahead.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/quivotequoi.js') }}"></script>
     </head>
     <body>
         <div class="container">
@@ -31,6 +31,15 @@
                 {% block content %}
                 {% endblock %}
             </div>
+            {% block footer %}
+            <footer class="footer">
+                <p>Créé par <a href="http://twitter.com/steeve">@steeve</a>, <a href="http://twitter.com/zllak">@zllak</a> et <a href="http://twitter.com/SamuelClara">@SamuelClara</a>
+                   avec des vrais morceaux de <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a> et d'<a href="http://www.elasticsearch.org">elasticsearch</a> dedans.</p>
+                <p>Toutes les données sont publiquement accessibles et extraites du site de l'<a href="http://www.assemblee-nationale.fr/">Assemblée Nationale</a>.</p>
+                <p>Les auteurs ne sont pas responsables de l'usage ni de l'exactitute des informations présentent sur ce site.</p>
+                <p>Tous droits réservés.</p>
+            </footer>
+            {% endblock %}
         </div>
     </body>
 </html>

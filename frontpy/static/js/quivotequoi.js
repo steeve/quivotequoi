@@ -11,3 +11,9 @@ $(document).ready(function (){
     property: "name"
   });
 });
+
+$(document).ready(function () {
+  if (window.location.hash) {
+    $("#more_" + window.location.hash.replace("#", "")).collapse('show');
+  }
+});

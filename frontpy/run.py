@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 import requests
 import json
 from datetime import datetime
@@ -27,6 +27,7 @@ def index():
         ).content
     )
     deputy = response["hits"]["hits"][0]["_source"]
+    deputy["image"] = url_for('static', filename='img/thumbs/%s.jpg' % deputy["uuid"])
     return render_template("index.html", deputy=deputy)
 
 
@@ -72,6 +73,7 @@ def show_deputy(uuid):
     deputy = json.loads(
         requests.get("http://localhost:9200/levote/deputies/%s" % uuid).content
     )["_source"]
+    deputy["image"] = url_for('static', filename='img/thumbs/%s.jpg' % deputy["uuid"])
     queries = {}
     for vote_type in ["yea", "nay", "abs"]:
         query = {

@@ -1,10 +1,9 @@
-<tr name="{{ result._source.uuid }}">
+<tr>
     <td>
         {{ result._source.date }}
     </td>
     <td>
-        <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#more_{{ result._source.uuid }}">{{ result._source.title|capitalize }}</a>
-
+        <a name="{{ result._source.uuid }}" href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#more_{{ result._source.uuid }}">{{ result._source.title|capitalize }}</a>
         <div id="more_{{ result._source.uuid }}" class="collapse">
             <hr/>
             <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#vote_{{ result._source.uuid }}">Detail du vote</a></h4>
@@ -61,12 +60,12 @@
             <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#links_{{ result._source.uuid }}">Liens utiles</a></h4>
             <div id="links_{{ result._source.uuid }}" class="collapse in">
                 <ul>
-                    <li><i class="icon-search"></i> <a href="{{ result._source.url }}">Voir le scrutin au Journal Officiel</a></li>
+                    <li><i class="icon-search"></i> <a href="{{ result._source.url }}" target="_blank">Voir le scrutin au Journal Officiel</a></li>
                     {% if result._source.file_href %}
-                        <li><i class="icon-search"></i> <a href="{{ result._source.file_href }}">Voir le dossier</a></li>
+                        <li><i class="icon-search"></i> <a href="{{ result._source.file_href }}" target="_blank">Voir le dossier</a></li>
                     {% endif %}
                     {% if result._source.law_href %}
-                        <li><i class="icon-book"></i> <a href="{{ result._source.law_href }}">Voir sur Legifrance</a></li>
+                        <li><i class="icon-book"></i> <a href="{{ result._source.law_href }}" target="_blank">Voir sur Legifrance</a></li>
                     {% endif %}
                 </ul>
 
