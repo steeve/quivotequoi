@@ -1,0 +1,28 @@
+# Python
+*.py[co]
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
+.pc/
+
+# Installer logs
+pip-log.txt
+
+# Vim
+.*.sw[a-z]
+*.un~
+Session.vim
+
+# videos
+*.flv
+*.mp4
+*.3gp
