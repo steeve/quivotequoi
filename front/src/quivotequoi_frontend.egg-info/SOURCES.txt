@@ -4,6 +4,7 @@ setup.py
 src/quivotequoi/__init__.py
 src/quivotequoi/front/__init__.py
 src/quivotequoi/front/__init__.pyc
+src/quivotequoi/front/config.py
 src/quivotequoi/front/run.py
 src/quivotequoi/front/static/css/bootstrap-responsive.css
 src/quivotequoi/front/static/css/bootstrap-responsive.min.css

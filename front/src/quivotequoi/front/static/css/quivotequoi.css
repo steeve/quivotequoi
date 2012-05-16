@@ -14,3 +14,7 @@
     margin-bottom: 0;
     color: #555;
 }
+
+.scrutiny_link {
+    cursor: pointer;
+}

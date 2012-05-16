@@ -17,3 +17,14 @@ $(document).ready(function () {
     $("#more_" + window.location.hash.replace("#", "")).collapse('show');
   }
 });
+
+
+$(document).ready(function () {
+  $(".scrutiny_link").each(function (index, Element) {
+    $(Element).click(function (eventObject) {
+      var scrollmem = $(window).scrollTop();
+      window.location.hash = $(this).attr('name');
+      $(window).scrollTop(scrollmem);
+    });
+  });
+});

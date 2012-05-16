@@ -2,10 +2,17 @@ from flask import Flask, render_template, request, url_for
 import requests
 import simplejson as json
 from datetime import datetime
-
+from quivotequoi.front.config import *
+from urlparse import urljoin
 
 app = Flask(__name__)
 
+
+def es_url(*args):
+    res = urljoin(ELASTICSEARCH_HOST, ELASTICSEARCH_INDEX)
+    for arg in args:
+        res = urljoin(res + "/", arg)
+    return res
 
 @app.route("/")
 def index():
@@ -22,7 +29,7 @@ def index():
     }
     response = json.loads(
         requests.post(
-            "http://localhost:9200/levote/deputies/_search",
+            es_url("deputies", "_search"),
             data=json.dumps(query)
         ).content
     )
@@ -55,7 +62,7 @@ def search_deputy():
     }
     response = json.loads(
         requests.post(
-            "http://localhost:9200/levote/deputies/_search",
+            es_url("deputies", "_search"),
             data=json.dumps(query)
         ).content
     )
@@ -71,7 +78,7 @@ def search_deputy():
 @app.route("/deputes/<uuid>")
 def show_deputy(uuid):
     deputy = json.loads(
-        requests.get("http://localhost:9200/levote/deputies/%s" % uuid).content
+        requests.get(es_url("deputies", uuid)).content
     )["_source"]
     deputy["image"] = url_for('static', filename='img/thumbs/%s.jpg' % deputy["uuid"])
     queries = {}
@@ -85,7 +92,7 @@ def show_deputy(uuid):
         }
         queries[vote_type] = json.loads(
             requests.post(
-                "http://localhost:9200/levote/scrutinies/_search",
+                es_url("scrutinies", "_search"),
                 data=json.dumps(query)
             ).content
         )["hits"]

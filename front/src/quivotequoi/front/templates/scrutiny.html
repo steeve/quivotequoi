@@ -3,7 +3,7 @@
         {{ result._source.date }}
     </td>
     <td>
-        <a name="{{ result._source.uuid }}" href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#more_{{ result._source.uuid }}">{{ result._source.title|capitalize }}</a>
+        <a class="scrutiny_link" name="{{ result._source.uuid }}" data-toggle="collapse" data-target="#more_{{ result._source.uuid }}">{{ result._source.title|capitalize }}</a>
         <div id="more_{{ result._source.uuid }}" class="collapse">
             <hr/>
             <h4><i class="icon-chevron-right"></i> <a href="#{{ result._source.uuid }}" data-toggle="collapse" data-target="#vote_{{ result._source.uuid }}">Detail du vote</a></h4>
