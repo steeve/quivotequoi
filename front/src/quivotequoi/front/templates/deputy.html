@@ -18,10 +18,8 @@
     <div class="row">
         <div class="span2">
             <ul class="thumbnails">
-                <li class="">
-                    <a href="#" class="thumbnail">
-                        <img style="height: 128px;" src="{{ deputy.image }}"</img>
-                    </a>
+                <li class="thumbnail">
+                    <img style="height: 128px;" src="{{ deputy.image }}"</img>
                 </li>
             </ul>
         </div>
@@ -39,7 +37,7 @@
                     <a href="#votes_{{ vote}}" data-toggle="tab">{{ {"yea": "Pour", "nay":"Contre", "abs": "Abstenu"}[vote] }} <span class="badge {{ {"yea": "badge-success", "nay": "badge-important", "abs": "badge-inverse"}[vote] }}">{{ results.total }}</span></a></li>
                 </li>
             {% endfor %}
-            <li class="span2 pull-right"><h1>Scrutins</h1></li>
+            <li class="pull-right"><h1>Scrutins</h1></li>
         </ul>
         <div class="tab-content">
             {% for vote, results in queries.items() %}
