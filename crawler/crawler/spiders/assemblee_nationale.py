@@ -132,7 +132,7 @@ class AssembleeNationaleSpider(BaseSpider):
                 group_name = None
             if assembly != "senat":
                 if node_class  == 'nomgroupe':
-                    group_name = node.re("([\w, ]+) \(\d+\)")[0].lower()
+                    group_name = node.text().re("(.+?) \(\d+\)")[0].lower()
                     group_name = re.sub(r"groupe ", "", group_name).strip()
                     votes[group_name] = {}
                     vote = None
