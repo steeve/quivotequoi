@@ -26,6 +26,8 @@
                             <td>
                                 {% if vote.votes.yea|length > vote.votes.nay|length %}
                                     <span class="label label-success">Pour</span>
+                                {% elif vote.votes.yeah|length == 0 and vote.votes.nay|length == 0 and vote.votes.abs|length > 0 %}
+                                    <span class="label label-inverse">Abstenu</span>
                                 {% else %}
                                     <span class="label label-important">Contre</span>
                                 {% endif %}
