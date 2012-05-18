@@ -39,7 +39,7 @@ class DeputyUuidPipeline(object):
                 },
             },
         }
-        response = json.loads(requests.post("http://localhost:9200/levote/deputies/_search",
+        response = json.loads(requests.post("http://localhost:9200/quivotequoi/deputies/_search",
             data=json.dumps(query)).content)
         if response["hits"]["total"] > 0:
             return response["hits"]["hits"][0]["_source"]["uuid"]
@@ -63,7 +63,7 @@ class DeputyUuidPipeline(object):
 
 class ElasticSearchPipeline(object):
     def process_deputy_item(self, item, spider):
-        requests.post("http://localhost:9200/levote/deputies/%s" % item["uuid"],
+        requests.post("http://localhost:9200/quivotequoi/deputies/%s" % item["uuid"],
             data=json.dumps(item._values))
         return item
 
@@ -80,7 +80,7 @@ class ElasticSearchPipeline(object):
         if item.get("law"):
             es_item["law_href"] = item["law"]["href"]
             es_item["file_href"] = item["law"]["file_href"]
-        requests.post("http://localhost:9200/levote/scrutinies/%s" % item["uuid"], data=json.dumps(es_item))
+        requests.post("http://localhost:9200/quivotequoi/scrutinies/%s" % item["uuid"], data=json.dumps(es_item))
         return item
 
     def process_item(self, item, spider):

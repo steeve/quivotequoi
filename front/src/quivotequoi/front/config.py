@@ -1,2 +1,2 @@
 ELASTICSEARCH_HOST = "http://localhost:9200/"
-ELASTICSEARCH_INDEX = "levote"
+ELASTICSEARCH_INDEX = "quivotequoi"
