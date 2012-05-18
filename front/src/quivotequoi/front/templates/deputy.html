@@ -7,7 +7,11 @@
             $(".collapse").collapse();
         });
     </script>
+
+    <meta property="description" content="Les votes de {{ deputy.name }} à l'Assemblée Nationale sur QuiVoteQuoi." />
+
     <meta property="og:title" content="QuiVoteQuoi - {{ deputy.name }}" />
+    <meta property="og:description" content="Les votes de {{ deputy.name }} à l'Assemblée Nationale sur QuiVoteQuoi." />
     <meta property="og:image" content="{{ deputy.image }}" />
 {% endblock %}
 {% block content %}
